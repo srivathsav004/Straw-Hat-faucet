@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { Github, Twitter, MessageCircle } from "lucide-react"
 import Image from "next/image"
+import { Button } from "@/components/ui/button"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -28,13 +29,11 @@ export function Footer() {
 
   return (
     <footer className="bg-[rgb(var(--ocean-deep))] border-t border-[rgb(var(--straw-gold))]/30 py-12 px-4 relative">
-      {/* Wave decoration at top */}
-      <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[rgb(var(--straw-gold))] to-transparent" />
 
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="md:col-span-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 relative">
                 <Image src="/hat.png" alt="Logo" width={40} height={40} className="w-full h-full" />
@@ -47,7 +46,7 @@ export function Footer() {
           </div>
 
           {/* Product Links */}
-          <div>
+          <div className="md:col-span-3">
             <h3 className="text-[rgb(var(--straw-gold))] font-semibold mb-4">Product</h3>
             <ul className="space-y-2">
               {footerLinks.product.map((link) => (
@@ -64,7 +63,7 @@ export function Footer() {
           </div>
 
           {/* Legal Links */}
-          <div>
+          <div className="md:col-span-2">
             <h3 className="text-[rgb(var(--straw-gold))] font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               {footerLinks.legal.map((link) => (
@@ -81,7 +80,7 @@ export function Footer() {
           </div>
 
           {/* Social Links */}
-          <div>
+          <div className="md:col-span-2">
             <h3 className="text-[rgb(var(--straw-gold))] font-semibold mb-4">Community</h3>
             <div className="flex gap-4">
               {footerLinks.social.map((social) => (
@@ -99,13 +98,36 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Star/Donate Panel */}
+        <motion.div
+          className="rounded-md border border-[rgb(var(--straw-gold))]/30 bg-[rgb(var(--ocean-navy))]/20 p-5 text-center mx-auto max-w-3xl mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <p className="text-[rgb(var(--skull-white))]/70 text-sm">Found this useful? Consider starring on GitHub.</p>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Button asChild size="sm" className="bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))]">
+                <a href="https://github.com/srivathsav004/Straw-Hat-faucet" target="_blank" rel="noopener noreferrer" aria-label="Star on GitHub">
+                  <Github className="mr-2" /> Star on GitHub
+                </a>
+              </Button>
+            </motion.div>
+          </div>
+          <p className="text-[rgb(var(--skull-white))]/60 text-xs mt-3 break-all">
+            Want to contribute faucets? Donate: <span className="text-[rgb(var(--straw-gold))]">0x6dca1d4db6f6154cfc8b8a2a2b3dedc9a25c1835</span>
+          </p>
+        </motion.div>
+
         {/* Bottom bar */}
-        <div className="border-t border-[rgb(var(--straw-gold))]/30 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-[rgb(var(--straw-gold))]/30 pt-8 flex justify-center items-center">
           <p className="text-[rgb(var(--skull-white))]/60 text-sm">
             © {currentYear} Straw Hat Faucet. All rights reserved.
           </p>
-          <p className="text-[rgb(var(--skull-white))]/60 text-sm">Built with passion for the Web3 community</p>
         </div>
+
       </div>
     </footer>
   )
