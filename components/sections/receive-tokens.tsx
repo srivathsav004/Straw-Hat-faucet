@@ -125,7 +125,7 @@ export function ReceiveTokensSection() {
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="container mx-auto max-w-3xl relative z-10">
+      <div className="container mx-auto max-w-3xl relative z-10 no-scroll-anchor">
         <motion.div
           className="text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
@@ -157,8 +157,7 @@ export function ReceiveTokensSection() {
               <div>
                 <Label className="text-[rgb(var(--skull-white))]">Select Network</Label>
               <Select value={network} onValueChange={setNetwork}>
-                <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                <SelectTrigger className="mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))]">
+                <SelectTrigger className="mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))] transition-colors focus-visible:border-[rgb(var(--straw-gold))] hover:border-[rgb(var(--straw-gold))]/50">
                   <div className="flex items-center gap-2">
                     <div className="relative h-5 w-5">
                       <Image src={networkIcon} alt={selected?.label || "network"} fill className="object-contain rounded" />
@@ -166,7 +165,6 @@ export function ReceiveTokensSection() {
                     <span>{selected?.label || "Choose a network"}</span>
                   </div>
                 </SelectTrigger>
-                </motion.div>
                 <SelectContent className="bg-[rgb(var(--ocean-deep))] border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))]">
                   {NETWORK_OPTIONS.map((n) => (
                     <SelectItem key={n.value} value={n.value}>
@@ -197,14 +195,12 @@ export function ReceiveTokensSection() {
 
             <div>
               <Label className="text-[rgb(var(--skull-white))]">Enter Your Wallet Address</Label>
-              <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.995 }}>
               <Input
                 value={address}
                 onChange={(e) => setAddress(e.target.value.trim())}
                 placeholder="0x..."
-                className="mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))] placeholder:text-[rgb(var(--skull-white))]/40"
+                className="mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))] placeholder:text-[rgb(var(--skull-white))]/40 transition-colors focus-visible:border-[rgb(var(--straw-gold))] hover:border-[rgb(var(--straw-gold))]/50"
               />
-              </motion.div>
             </div>
 
             <div>
