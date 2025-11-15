@@ -163,9 +163,11 @@
 }
 
 @layer utilities {
-  .text-glow {
-    text-shadow: 0 0 20px rgba(255, 200, 50, 0.6);
-  }
+  /* Disable glow to keep gold text crisp */
+  .text-glow { text-shadow: none; }
+
+  /* Balanced line wrapping for headings / long titles */
+  .text-balance { text-wrap: balance; }
 
   .card-glow {
     box-shadow: 0 0 30px rgba(255, 200, 50, 0.2);
