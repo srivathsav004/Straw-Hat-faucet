@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Pirata_One, Permanent_Marker } from "next/font/google"
 import "./globals.css"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const pirataOne = Pirata_One({
@@ -41,6 +42,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.variable} ${pirataOne.variable} ${permanentMarker.variable} antialiased`}>
         {children}
+        <Analytics />
       </body>
     </html>
   )
