@@ -69,8 +69,9 @@ export function Navbar() {
           <Button
             className="bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold"
             size="lg"
+            asChild
           >
-            Get Tokens
+            <a href="#receive">Get Tokens</a>
           </Button>
         </motion.div>
 
@@ -95,8 +96,9 @@ export function Navbar() {
               <Button
                 className="bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold mt-4"
                 size="lg"
+                asChild
               >
-                Get Tokens
+                <a href="#receive">Get Tokens</a>
               </Button>
             </div>
           </SheetContent>

@@ -21,7 +21,11 @@ export const metadata: Metadata = {
     "Get free testnet tokens without mainnet ETH. Support for Ethereum Sepolia, Base Sepolia, Polygon, Avalanche, and more. Join the crew of Web3 builders.",
   keywords:
     "testnet faucet, free testnet tokens, ethereum sepolia, base sepolia, polygon, avalanche fuji, web3 development",
-    generator: 'v0.app'
+  icons: {
+    icon: "/hat.png",
+    shortcut: "/hat.png",
+    apple: "/hat.png",
+  }
 }
 
 export default function RootLayout({

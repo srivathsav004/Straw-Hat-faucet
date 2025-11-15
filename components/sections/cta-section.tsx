@@ -57,8 +57,9 @@ export function CTASection() {
             <Button
               size="lg"
               className="bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold text-xl px-12 py-8 shadow-2xl"
+              asChild
             >
-              Get Your Tokens Now
+              <a href="#receive">Get Your Tokens Now</a>
             </Button>
           </motion.div>
 
