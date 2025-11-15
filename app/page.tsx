@@ -7,6 +7,7 @@ import { HowItWorksSection } from "@/components/sections/how-it-works"
 import { CTASection } from "@/components/sections/cta-section"
 import { FAQSection } from "@/components/sections/faq"
 import { Footer } from "@/components/sections/footer"
+import { ReceiveTokensSection } from "@/components/sections/receive-tokens"
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <SupportedNetworksSection />
+      <ReceiveTokensSection />
       <HowItWorksSection />
       <CTASection />
       <FAQSection />
