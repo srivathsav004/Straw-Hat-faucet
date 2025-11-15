@@ -13,23 +13,23 @@ const features = [
   {
     icon: Map,
     title: "Multiple Testnets",
-    description: "Access AVAX Fuji, Polygon Mumbai, Base Sepolia, Sepolia, and more networks.",
+    description: "Access Polygon Amoy, AVAX Fuji, Base Sepolia, and Ethereum Sepolia.",
   },
-  {
-    icon: Zap,
-    title: "Instant Delivery",
-    description: "Tokens delivered to your wallet in seconds. No waiting, no delays.",
-  },
-  {
-    icon: Code,
-    title: "Developer Friendly",
-    description: "Built by devs, for devs. Simple API integration available for automation.",
-  },
-  {
-    icon: Users,
-    title: "Community Driven",
-    description: "Join thousands of builders on their Web3 journey. We're all in this together.",
-  },
+  // {
+  //   icon: Zap,
+  //   title: "Fast Payouts",
+  //   description: "Tokens delivered to your wallet in seconds. No waiting, no delays.",
+  // },
+  // {
+  //   icon: Code,
+  //   title: "Developer Friendly",
+  //   description: "Built by devs, for devs. Simple API integration available for automation.",
+  // },
+  // {
+  //   icon: Users,
+  //   title: "Community Driven",
+  //   description: "Join thousands of builders on their Web3 journey. We're all in this together.",
+  // },
   {
     icon: Ship,
     title: "Always Available",
@@ -49,10 +49,10 @@ export function FeaturesSection() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-6xl font-bold text-[rgb(var(--straw-gold))] mb-4">
-            Why Choose Straw Hat Faucet?
+            What You Get
           </h2>
           <p className="text-xl text-[rgb(var(--skull-white))]/70 max-w-2xl mx-auto">
-            Every great pirate needs the right tools. Here's what makes us the best crew for your journey.
+            Fast, reliable testnet funds with a clean UX so you can focus on building.
           </p>
         </motion.div>
 

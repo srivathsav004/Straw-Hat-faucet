@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description:
     "Get free testnet tokens without mainnet ETH. Support for Ethereum Sepolia, Base Sepolia, Polygon, Avalanche, and more. Join the crew of Web3 builders.",
   keywords:
-    "testnet faucet, free testnet tokens, ethereum sepolia, base sepolia, polygon mumbai, avalanche fuji, web3 development",
+    "testnet faucet, free testnet tokens, ethereum sepolia, base sepolia, polygon, avalanche fuji, web3 development",
     generator: 'v0.app'
 }
 

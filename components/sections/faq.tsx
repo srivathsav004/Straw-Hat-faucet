@@ -12,7 +12,7 @@ const faqs = [
   {
     question: "Which networks do you support?",
     answer:
-      "We currently support Ethereum Sepolia, Base Sepolia, Polygon Mumbai, Avalanche Fuji, Arbitrum Sepolia, and Optimism Sepolia. We're constantly adding more networks based on community demand.",
+      "We currently support Ethereum Sepolia, Base Sepolia, Polygon Amoy, Avalanche Fuji, Arbitrum Sepolia, and Optimism Sepolia. We're constantly adding more networks based on community demand.",
   },
   {
     question: "How often can I request tokens?",
@@ -39,11 +39,11 @@ const faqs = [
     answer:
       "No, this faucet only provides testnet tokens. These tokens have no real-world value and can only be used on test networks for development purposes.",
   },
-  {
-    question: "Is there an API available?",
-    answer:
-      "Yes! We offer a simple API for developers who want to integrate faucet functionality into their tools or workflows. Check our documentation for details.",
-  },
+  // {
+  //   question: "Is there an API available?",
+  //   answer:
+  //     "Yes! We offer a simple API for developers who want to integrate faucet functionality into their tools or workflows. Check our documentation for details.",
+  // },
 ]
 
 export function FAQSection() {
