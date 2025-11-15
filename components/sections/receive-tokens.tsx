@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner"
 import Image from "next/image"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
+import { motion } from "framer-motion"
 
 const NETWORK_OPTIONS = [
   { value: "amoy", label: "Polygon Amoy" },
@@ -116,17 +117,47 @@ export function ReceiveTokensSection() {
   }, [network])
 
   return (
-    <section id="receive" className="py-20 px-4 relative overflow-hidden bg-[rgb(var(--ocean-darker))]/40">
+    <motion.section
+      id="receive"
+      className="py-20 px-4 relative overflow-hidden bg-[rgb(var(--ocean-darker))]/40"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="container mx-auto max-w-3xl relative z-10">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl md:text-6xl font-bold text-[rgb(var(--straw-gold))] mb-3 text-glow">Receive Testnet Tokens</h2>
-          <p className="text-[rgb(var(--skull-white))]/70 text-lg">Select a network, enter your wallet, and we will send you native test tokens.</p>
-        </div>
-        <Card className="bg-[rgb(var(--ocean-navy))]/30 backdrop-blur-sm border-[rgb(var(--straw-gold))]/30 p-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <Label className="text-[rgb(var(--skull-white))]">Select Network</Label>
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.h2 className="text-4xl md:text-6xl font-bold text-[rgb(var(--straw-gold))] mb-3 text-glow">
+            Receive Testnet Tokens
+          </motion.h2>
+          <motion.p className="text-[rgb(var(--skull-white))]/70 text-lg">
+            Select a network, enter your wallet, and we will send you native test tokens.
+          </motion.p>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Card className="bg-[rgb(var(--ocean-navy))]/30 backdrop-blur-sm border-[rgb(var(--straw-gold))]/30 p-6">
+            <motion.div
+              className="grid grid-cols-1 gap-6"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+            >
+              <div>
+                <Label className="text-[rgb(var(--skull-white))]">Select Network</Label>
               <Select value={network} onValueChange={setNetwork}>
+                <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                 <SelectTrigger className="mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))]">
                   <div className="flex items-center gap-2">
                     <div className="relative h-5 w-5">
@@ -135,6 +166,7 @@ export function ReceiveTokensSection() {
                     <span>{selected?.label || "Choose a network"}</span>
                   </div>
                 </SelectTrigger>
+                </motion.div>
                 <SelectContent className="bg-[rgb(var(--ocean-deep))] border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))]">
                   {NETWORK_OPTIONS.map((n) => (
                     <SelectItem key={n.value} value={n.value}>
@@ -165,12 +197,14 @@ export function ReceiveTokensSection() {
 
             <div>
               <Label className="text-[rgb(var(--skull-white))]">Enter Your Wallet Address</Label>
+              <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.995 }}>
               <Input
                 value={address}
                 onChange={(e) => setAddress(e.target.value.trim())}
                 placeholder="0x..."
                 className="mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))] placeholder:text-[rgb(var(--skull-white))]/40"
               />
+              </motion.div>
             </div>
 
             <div>
@@ -187,17 +221,19 @@ export function ReceiveTokensSection() {
               </div>
             </div>
 
-            <Button
-              onClick={onClaim}
-              disabled={claiming || !captchaToken}
-              className="w-full bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold py-6"
-            >
-              {claiming ? (
-                <span className="inline-flex items-center gap-2"><Spinner className="h-4 w-4" /> Processing...</span>
-              ) : (
-                "Receive Tokens"
-              )}
-            </Button>
+            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+              <Button
+                onClick={onClaim}
+                disabled={claiming || !captchaToken}
+                className="w-full bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold py-6"
+              >
+                {claiming ? (
+                  <span className="inline-flex items-center gap-2"><Spinner className="h-4 w-4" /> Processing...</span>
+                ) : (
+                  "Receive Tokens"
+                )}
+              </Button>
+            </motion.div>
 
             {(txHash || error) && (
               <div className="space-y-2">
@@ -205,14 +241,15 @@ export function ReceiveTokensSection() {
                 {error && <p className="text-sm text-red-400">{error}</p>}
               </div>
             )}
-          </div>
-        </Card>
+            </motion.div>
+          </Card>
+        </motion.div>
 
         <div className="pointer-events-none absolute inset-0 opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]">
           <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[rgb(var(--straw-gold))] blur-3xl" />
           <div className="absolute -bottom-10 -left-10 w-72 h-72 rounded-full bg-[rgb(var(--pirate-red))] blur-3xl" />
         </div>
       </div>
-    </section>
+    </motion.section>
   )
 }
