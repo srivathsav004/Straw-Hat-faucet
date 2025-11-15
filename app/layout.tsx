@@ -22,7 +22,11 @@ export const metadata: Metadata = {
   keywords:
     "testnet faucet, free testnet tokens, ethereum sepolia, base sepolia, polygon, avalanche fuji, web3 development",
   icons: {
-    icon: "/hat.png",
+    icon: [
+      { url: "/hat.png", sizes: "32x32", type: "image/png" },
+      { url: "/hat.png", sizes: "64x64", type: "image/png" },
+      { url: "/hat.png", sizes: "192x192", type: "image/png" }
+    ],
     shortcut: "/hat.png",
     apple: "/hat.png",
   }

@@ -84,7 +84,7 @@ export function HeroSection() {
           <Button
             size="lg"
             variant="outline"
-            className="border-[rgb(var(--straw-gold))] text-[rgb(var(--straw-gold))] hover:bg-[rgb(var(--straw-gold))]/10 font-semibold text-lg px-8 py-6 bg-transparent"
+            className="border-[rgb(var(--straw-gold))] text-[rgb(var(--straw-gold))] hover:bg-transparent hover:text-[rgb(var(--straw-gold))] font-semibold text-lg px-8 py-6 bg-transparent"
             asChild
           >
             <a href="#networks">View Networks</a>
