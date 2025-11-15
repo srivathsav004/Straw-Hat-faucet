@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import Image from "next/image"
+import HCaptcha from "@hcaptcha/react-hcaptcha"
 
 const NETWORK_OPTIONS = [
   { value: "amoy", label: "Polygon Amoy" },
@@ -24,6 +25,7 @@ const BACKEND_NETWORK_MAP: Record<string, string> = {
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_FAUCET_API
+const HCAPTCHA_SITEKEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITEKEY
 
 export function ReceiveTokensSection() {
   const [network, setNetwork] = useState<string>(NETWORK_OPTIONS[0].value)
@@ -31,6 +33,8 @@ export function ReceiveTokensSection() {
   const [claiming, setClaiming] = useState<boolean>(false)
   const [txHash, setTxHash] = useState<string>("")
   const [error, setError] = useState<string>("")
+  const [captchaToken, setCaptchaToken] = useState<string>("")
+  const captchaRef = useRef<any>(null)
 
   const onClaim = useCallback(async () => {
     setError("")
@@ -46,22 +50,39 @@ export function ReceiveTokensSection() {
       return
     }
 
+    if (!HCAPTCHA_SITEKEY) {
+      setError("hCaptcha sitekey is not configured. Set NEXT_PUBLIC_HCAPTCHA_SITEKEY in your env.")
+      return
+    }
+
+    if (!captchaToken) {
+      setError("Complete the human verification (hCaptcha)")
+      return
+    }
+
     try {
       setClaiming(true)
       const mappedNetwork = BACKEND_NETWORK_MAP[network] ?? network
       const res = await fetch(`${BACKEND_URL}/claim`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ network: mappedNetwork, recipient: address }),
+        body: JSON.stringify({ network: mappedNetwork, recipient: address, captchaToken }),
       })
 
       const result = await res.json()
       if (res.ok && result?.success) {
         setTxHash(result.txHash)
       } else {
+        const humanize = (seconds: number) => {
+          if (!Number.isFinite(seconds) || seconds <= 0) return 'a moment';
+          const mins = Math.ceil(seconds / 60)
+          if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'}`
+          const hrs = Math.ceil(mins / 60)
+          return `${hrs} hour${hrs === 1 ? '' : 's'}`
+        }
         const msg =
           result?.error === "Wait before next claim" && typeof result?.wait === "number"
-            ? `Wait before next claim. Try again in ${result.wait}s.`
+            ? `Wait before next claim. Try again in ${humanize(result.wait)}.`
             : result?.error || "Claim failed"
         setError(msg)
       }
@@ -70,8 +91,13 @@ export function ReceiveTokensSection() {
       setError(msg)
     } finally {
       setClaiming(false)
+      // Reset captcha after each attempt
+      setCaptchaToken("")
+      try {
+        captchaRef.current?.resetCaptcha?.()
+      } catch {}
     }
-  }, [address, network])
+  }, [address, network, captchaToken])
 
   const selected = useMemo(() => NETWORK_OPTIONS.find((n) => n.value === network), [network])
   const networkIcon = useMemo(() => {
@@ -147,9 +173,23 @@ export function ReceiveTokensSection() {
               />
             </div>
 
+            <div>
+              <Label className="text-[rgb(var(--skull-white))]">Human Verification</Label>
+              <div className="mt-2">
+                <HCaptcha
+                  sitekey={HCAPTCHA_SITEKEY || ""}
+                  onVerify={(token: string) => setCaptchaToken(token)}
+                  onExpire={() => setCaptchaToken("")}
+                  onError={() => setCaptchaToken("")}
+                  theme="dark"
+                  ref={captchaRef}
+                />
+              </div>
+            </div>
+
             <Button
               onClick={onClaim}
-              disabled={claiming}
+              disabled={claiming || !captchaToken}
               className="w-full bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold py-6"
             >
               {claiming ? (
