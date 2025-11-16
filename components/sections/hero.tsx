@@ -1,37 +1,32 @@
 "use client"
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useRef } from "react"
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] })
-  const yRaw = useTransform(scrollYProgress, [0, 1], [0, 120])
-  const opacityRaw = useTransform(scrollYProgress, [0, 0.6], [1, 0])
-  const y = useSpring(yRaw, { stiffness: 120, damping: 20 })
-  const opacity = useSpring(opacityRaw, { stiffness: 120, damping: 20 })
 
   return (
     <section ref={sectionRef as any} id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-black">
       <motion.div
-        className="absolute top-20 right-10 w-16 h-16 opacity-20 will-change-transform"
+        className="absolute top-20 right-10 w-16 h-16 opacity-20 will-change-transform transform-gpu pointer-events-none"
         animate={{
           y: [0, -20, 0],
           rotate: [0, 10, 0],
         }}
         transition={{
-          duration: 4,
+          duration: 5,
           repeat: Number.POSITIVE_INFINITY,
           ease: "easeInOut",
         }}
       >
-        <Image src="/anchor.png" alt="Anchor decoration" width={64} height={64} />
+        <Image src="/anchor.png" alt="Anchor decoration" width={64} height={64} draggable={false} />
       </motion.div>
 
       {/* Main content */}
-      <motion.div className="relative z-10 text-center px-4 max-w-5xl mx-auto will-change-transform" style={{ y, opacity }}>
+      <motion.div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
@@ -48,20 +43,20 @@ export function HeroSection() {
 
         <motion.h1
           className="text-5xl md:text-7xl lg:text-8xl font-bold text-[rgb(var(--straw-gold))] mb-6 text-glow"
-          initial={{ y: 40, opacity: 0 }}
+          initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ delay: 0.1, duration: 0.6 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
           Set Sail on Your Web3 Journey
         </motion.h1>
 
         <motion.p
           className="text-xl md:text-2xl text-[rgb(var(--skull-white))]/80 mb-8 max-w-3xl mx-auto"
-          initial={{ y: 40, opacity: 0 }}
+          initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
+          transition={{ delay: 0.15, duration: 0.5 }}
         >
           Get testnet tokens without mainnet ETH. No barriers, just adventure. Join the crew of builders navigating the
           Grand Line of Web3.
