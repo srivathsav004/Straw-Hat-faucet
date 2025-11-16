@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,16 @@ import { Spinner } from "@/components/ui/spinner"
 import Image from "next/image"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
 import { motion } from "framer-motion"
+
+type Stage =
+  | "idle"
+  | "routing"
+  | "signing"
+  | "sending"
+  | "confirming"
+  | "success"
+  | "error"
+  | "cooldown"
 
 const NETWORK_OPTIONS = [
   { value: "amoy", label: "Polygon Amoy" },
@@ -36,15 +46,39 @@ export function ReceiveTokensSection() {
   const [error, setError] = useState<string>("")
   const [captchaToken, setCaptchaToken] = useState<string>("")
   const captchaRef = useRef<any>(null)
+  const [addrError, setAddrError] = useState<string>("")
+  const [copied, setCopied] = useState<boolean>(false)
+  const [stage, setStage] = useState<Stage>("idle")
+  const [progress, setProgress] = useState<number>(0)
+  const progressTimer = useRef<number | null>(null)
+
+  const explorerTx = useMemo(() => {
+    const map: Record<string, string> = {
+      amoy: "https://amoy.polygonscan.com/tx/",
+      fuji: "https://testnet.snowtrace.io/tx/",
+      sepolia: "https://sepolia.etherscan.io/tx/",
+      base: "https://sepolia.basescan.org/tx/",
+    }
+    return map[network] || ""
+  }, [network])
 
   const onClaim = useCallback(async () => {
     setError("")
     setTxHash("")
+    setCopied(false)
+    setProgress(0)
 
     if (!address) {
       setError("Enter your wallet address")
       return
     }
+
+    const isEvm = /^0x[a-fA-F0-9]{40}$/.test(address)
+    if (!isEvm) {
+      setAddrError("Invalid wallet address format")
+      return
+    }
+    setAddrError("")
 
     if (!BACKEND_URL) {
       setError("Backend URL is not configured. Set NEXT_PUBLIC_FAUCET_API in your env.")
@@ -63,6 +97,16 @@ export function ReceiveTokensSection() {
 
     try {
       setClaiming(true)
+      setStage("routing")
+      // Animate a single progress bar up to 95% while waiting for the API
+      if (progressTimer.current) window.clearInterval(progressTimer.current)
+      progressTimer.current = window.setInterval(() => {
+        setProgress((p) => {
+          const cap = 95
+          // smaller increments for smoother visual movement
+          return p < cap ? Math.min(cap, p + 1) : p
+        })
+      }, 50)
       const mappedNetwork = BACKEND_NETWORK_MAP[network] ?? network
       const res = await fetch(`${BACKEND_URL}/claim`, {
         method: "POST",
@@ -71,32 +115,52 @@ export function ReceiveTokensSection() {
       })
 
       const result = await res.json()
+      // stop background progress and complete the bar
+      if (progressTimer.current) {
+        window.clearInterval(progressTimer.current)
+        progressTimer.current = null
+      }
+      setProgress(100)
       if (res.ok && result?.success) {
-        setTxHash(result.txHash)
+        // allow ship to reach the end smoothly, then reveal success
+        window.setTimeout(() => {
+          setTxHash(result.txHash)
+          setStage("success")
+        }, 350)
       } else {
         const humanize = (seconds: number) => {
           if (!Number.isFinite(seconds) || seconds <= 0) return 'a moment';
           const mins = Math.ceil(seconds / 60)
-          if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'}`
+          if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'}`;
           const hrs = Math.ceil(mins / 60)
-          return `${hrs} hour${hrs === 1 ? '' : 's'}`
+          return `${hrs} hour${hrs === 1 ? '' : 's'}`;
         }
         const msg =
           result?.error === "Wait before next claim" && typeof result?.wait === "number"
             ? `Wait before next claim. Try again in ${humanize(result.wait)}.`
-            : result?.error || "Claim failed"
-        setError(msg)
+            : result?.error || "Claim failed";
+        // allow ship to reach end, then reveal error/cooldown
+        window.setTimeout(() => {
+          setError(msg)
+          setStage(result?.error === "Wait before next claim" ? "cooldown" : "error")
+        }, 350)
       }
     } catch (e: any) {
       const msg = e?.message ?? "Claim request failed"
       setError(msg)
+      setStage("error")
     } finally {
-      setClaiming(false)
+      // keep the progress visible a touch longer for a clean finish
+      window.setTimeout(() => setClaiming(false), 400)
       // Reset captcha after each attempt
       setCaptchaToken("")
       try {
         captchaRef.current?.resetCaptcha?.()
       } catch {}
+      if (progressTimer.current) {
+        window.clearInterval(progressTimer.current)
+        progressTimer.current = null
+      }
     }
   }, [address, network, captchaToken])
 
@@ -115,6 +179,20 @@ export function ReceiveTokensSection() {
         return "/networks/polygon.png"
     }
   }, [network])
+
+  // progress steps removed in favor of a single progress bar with ship indicator
+
+  useEffect(() => {
+    if (stage === "success") {
+      // briefly keep 100% before resetting UI state
+      const t = setTimeout(() => { setStage("idle"); setProgress(0); }, 4000)
+      return () => clearTimeout(t)
+    }
+    if (stage === "error" || stage === "cooldown") {
+      const t = setTimeout(() => { setStage("idle"); setProgress(0); }, 6000)
+      return () => clearTimeout(t)
+    }
+  }, [stage])
 
   return (
     <motion.section
@@ -146,7 +224,7 @@ export function ReceiveTokensSection() {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.4 }}
         >
-          <Card className="bg-[rgb(var(--ocean-navy))]/30 backdrop-blur-sm border-[rgb(var(--straw-gold))]/30 p-6">
+          <Card className="bg-[rgb(var(--ocean-navy))]/30 backdrop-blur-sm border-[rgb(var(--straw-gold))]/30 p-6 border rounded-xl border-glow gold-glow">
             <motion.div
               className="grid grid-cols-1 gap-6"
               initial="hidden"
@@ -199,8 +277,9 @@ export function ReceiveTokensSection() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value.trim())}
                 placeholder="0x..."
-                className="mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))] placeholder:text-[rgb(var(--skull-white))]/40 transition-colors focus-visible:border-[rgb(var(--straw-gold))] hover:border-[rgb(var(--straw-gold))]/50"
+                className={`mt-2 bg-transparent border-[rgb(var(--straw-gold))]/30 text-[rgb(var(--skull-white))] placeholder:text-[rgb(var(--skull-white))]/40 transition-colors focus-visible:border-[rgb(var(--straw-gold))] hover:border-[rgb(var(--straw-gold))]/50 ${addrError ? 'border-red-500/60' : ''}`}
               />
+              {addrError && <p className="mt-2 text-sm text-red-400">{addrError}</p>}
             </div>
 
             <div>
@@ -217,24 +296,101 @@ export function ReceiveTokensSection() {
               </div>
             </div>
 
+            {(claiming || stage === "success") && (
+              <div className="rounded-md p-3 bg-[rgb(var(--ocean-deep))]/60 border border-[rgb(var(--straw-gold))]/20">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-[rgb(var(--skull-white))]/80">Processing transaction</p>
+                  <Spinner className="h-4 w-4 text-[rgb(var(--straw-gold))]" />
+                </div>
+                <div className="relative h-6">
+                  {/* Track with fill (kept overflow hidden) */}
+                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-3 rounded-full bg-[rgb(var(--skull-white))]/15 overflow-hidden">
+                    <div
+                      className="h-full bg-[rgb(var(--straw-gold))] transition-[width] duration-300 ease-linear"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  {/* Ship overlay above the track to avoid clipping */}
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 z-10 transition-[left] duration-300 ease-linear"
+                    style={{ left: `${progress}%`, transform: 'translate(-50%, -50%)' }}
+                  >
+                    <Image src="/ship.png" alt="ship" width={36} height={18} className="object-contain drop-shadow" />
+                  </div>
+                </div>
+              </div>
+            )}
+
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
               <Button
                 onClick={onClaim}
                 disabled={claiming || !captchaToken}
-                className="w-full bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold py-6"
+                className="w-full bg-[rgb(var(--straw-gold))] text-[rgb(var(--ocean-deep))] hover:bg-[rgb(var(--amber-glow))] font-semibold py-6 transition-all"
               >
-                {claiming ? (
-                  <span className="inline-flex items-center gap-2"><Spinner className="h-4 w-4" /> Processing...</span>
-                ) : (
-                  "Receive Tokens"
-                )}
+                Receive Tokens
               </Button>
             </motion.div>
 
             {(txHash || error) && (
               <div className="space-y-2">
-                {txHash && <p className="text-sm text-green-400 break-all">Success! TX Hash: {txHash}</p>}
-                {error && <p className="text-sm text-red-400">{error}</p>}
+                {txHash && (
+                  <div className="text-sm rounded-md border border-[rgb(var(--straw-gold))]/30 p-3 bg-[rgb(var(--ocean-deep))]/60">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-green-400 font-medium">Success! Transaction recorded.</p>
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        {explorerTx && (
+                          <a
+                            href={`${explorerTx}${txHash}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label="View on explorer"
+                            title="View on explorer"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[rgb(var(--straw-gold))] hover:bg-[rgb(var(--straw-gold))]/10"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                              <path d="M15 3h6v6" />
+                              <path d="M10 14 21 3" />
+                            </svg>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          aria-label="Copy transaction hash"
+                          title={copied ? "Copied" : "Copy"}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[rgb(var(--straw-gold))] hover:bg-[rgb(var(--straw-gold))]/10"
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(txHash)
+                              setCopied(true)
+                              setTimeout(() => setCopied(false), 1200)
+                            } catch {}
+                          }}
+                        >
+                          {copied ? (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                          ) : (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-2 h-px bg-[rgb(var(--straw-gold))]/20" />
+                    <p className="mt-2 font-mono text-[rgb(var(--skull-white))]/80 break-all">
+                      {txHash}
+                    </p>
+                  </div>
+                )}
+                {error && (
+                  <div className={`text-sm rounded-md p-3 border ${stage === 'cooldown' ? 'border-[rgb(var(--amber-glow))]/40 text-[rgb(var(--amber-glow))]' : 'border-red-500/40 text-red-400'}`}>
+                    {error}
+                  </div>
+                )}
               </div>
             )}
             </motion.div>
