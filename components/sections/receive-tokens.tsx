@@ -15,14 +15,14 @@ const NETWORK_OPTIONS = [
   { value: "amoy", label: "Polygon Amoy" },
   { value: "fuji", label: "Avalanche Fuji" },
   { value: "sepolia", label: "Ethereum Sepolia" },
-  { value: "baseSepolia", label: "Base Sepolia" },
+  { value: "base", label: "Base Sepolia" },
 ]
 
 const BACKEND_NETWORK_MAP: Record<string, string> = {
   amoy: "amoy",
-  fuji: "avax",
+  fuji: "fuji",
   sepolia: "sepolia",
-  baseSepolia: "base",
+  base: "base",
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_FAUCET_API
@@ -109,7 +109,7 @@ export function ReceiveTokensSection() {
         return "/networks/avalanche.png"
       case "sepolia":
         return "/networks/ethereum.png"
-      case "baseSepolia":
+      case "base":
         return "/networks/base.png"
       default:
         return "/networks/polygon.png"
